@@ -1,0 +1,65 @@
+:host {
+	display: grid;
+	text-align: center;
+}
+:host::before {
+	content: "残り" attr(flags);
+	grid-column: 1 / 4;
+	left: 0;
+	padding-left: .8em;
+	position: sticky;
+	text-align: left;
+	top: 0;
+}
+mine-timer {
+	grid-column: -5 / -1;
+	padding-right: .8em;
+	position: sticky;
+	right: 0;
+	text-align: right;
+	top: 0;
+}
+mine-cell {
+	background: #ccc;
+	border: 2px outset;
+	cursor: cell;
+	font: 800 1em / 1.6 sans-serif;
+}
+.flagged::after {
+	content: "\1f6a9";
+}
+[open] {
+	background: #ddd;
+	border: 1px solid #888;
+	cursor: default;
+}
+[open]::after {
+	content: attr(open);
+}
+[open="1"] {
+	color: blue;
+}
+[open="2"] {
+	color: green;
+}
+[open="3"] {
+	color: red;
+}
+[open="4"] {
+	color: navy;
+}
+[open="5"] {
+	color: saddlebrown;
+}
+[open="6"] {
+	color: teal;
+}
+[open="7"] {
+	color: darkslategray;
+}
+[open="8"] {
+	color: gray;
+}
+.mine::after {
+	content: "\1f4a3"
+}
