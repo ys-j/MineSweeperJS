@@ -22,6 +22,9 @@ pop-up > div > * {
 	display: block;
 	margin: 0 auto;
 }
+pop-up button {
+	font-size: 1rem;
+}
 
 a {
 	text-decoration: none;
@@ -104,4 +107,12 @@ caption > [role="button"]::after {
 th, td {
 	border: 1px solid #888;
 	padding: 4px 8px;
+}
+aside {
+	display: flex;
+	flex-flow: column nowrap;
+	margin: 8px;
+}
+aside > * {
+	margin: 8px auto;
 }

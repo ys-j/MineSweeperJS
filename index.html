@@ -3,7 +3,8 @@
 	<meta charset=utf-8>
 	<title>MineSweeperJS</title>
 	<meta name=viewport content="width=device-width,initial-scale=1">
-	<link rel=stylesheet href=index.css>
+	<link rel=stylesheet href=main.css>
+	<h1 hidden>MineSweeperJS</h1>
 	<form name=form>
 		<label>
 			<span data-i18n=grade.title>Grade</span>
@@ -35,5 +36,17 @@
 	<main id=wrapper>
 		<table id=score></table>
 	</main>
+	<aside id=tips>
+		<table>
+			<caption>Tips</caption>
+			<tr><th>Click / Tap<td>Open a cell.
+			<tr><th>Right-click / Long-tap<td>Flag on a cell.
+			<tr><th>Aux-click / Double-tap<td>Open around cells.
+		</table>
+		<ul>
+			<li>To scroll up/down the field, swipe up/down outside it.
+			<li>To scroll left/right the field, swipe left/right above it.
+		</ul>
+	</aside>
 	<script type=module src=main.js></script>
 </html>

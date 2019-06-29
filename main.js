@@ -49,6 +49,8 @@ function createElement(tag, options = {}) {
 	return element;
 }
 
+window.i18n = null;
+
 (function () {
 	const form = document.forms.form;
 	
@@ -98,11 +100,11 @@ function createElement(tag, options = {}) {
 		const records = JSON.parse(score);
 		const table = document.createElement('table');
 		if (!table.tHead) {
-			table.innerHTML = `<caption><span data-i18n=score.title>Scores</span><a role=button href="javascript:localStorage.removeItem('score')" data-i18n=score.reset>Reset</a><thead><th><th data-i18n=score.time>Time (s)<th data-i18n=score.date>Date<tbody><tbody><tbody>`;
+			table.innerHTML = `<caption>${i18n ? i18n.score.title : 'Scores'}<a role=button href="javascript:localStorage.removeItem('score')">${i18n ? i18n.score.reset : 'Reset'}</a><thead><th><th>${i18n ? i18n.score.time : 'Time (s)'}<th>${i18n ? i18n.score.date : 'Date'}<tbody><tbody><tbody>`;
 		}
 		['easy', 'normal', 'hard'].forEach((grade, i) => {
 			const tbody = table.tBodies[i];
-			tbody.innerHTML = `<tr><th><th class=capitalize colspan=2 data-i18n=grade.${grade}>${grade}`;
+			tbody.innerHTML = `<tr><th><th class=capitalize colspan=2>${i18n ? i18n.grade[grade] : grade}`;
 			const a = document.createElement('a');
 			a.className = 'icon-delete';
 			a.setAttribute('href', '#');
@@ -133,7 +135,6 @@ function createElement(tag, options = {}) {
 		});
 		wrapper.replaceChild(table, wrapper.lastElementChild);
 	}
-	displayScore();
 
 	function keepScore() {
 		const wrapper = document.getElementById('wrapper');
@@ -147,77 +148,75 @@ function createElement(tag, options = {}) {
 	}
 
 	/*
-	POP-UP
-	*/
-	document.body.append(new PopUp(new Map([
-		['head', createElement('strong', {
-			textContent: 'You Win!',
-			'dataset.i18n': 'popup.win',
-		})],
-		['button', createElement('button', {
-			textContent: 'Keep score',
-			'dataset.i18n': 'popup.button.keep',
-			onclick: e => {
-				keepScore();
-				displayScore();
-				e.target.offsetParent.hide();
-			},
-		})],
-		['close', createElement('button', {
-			textContent: 'Close',
-			'dataset.i18n': 'popup.button.close',
-			onclick: e => {
-				e.target.offsetParent.hide();
-			},
-		})],
-	]), 'popup-win'), new PopUp(new Map([
-		['head', createElement('strong', {
-			textContent: 'You lose!',
-			'dataset.i18n': 'popup.lose',
-		})],
-		['button', createElement('button', {
-			textContent: 'Retry',
-			'dataset.i18n': 'popup.button.retry',
-			onclick: e => {
-				e.target.offsetParent.hide();
-				document.forms.form.button.click();
-			},
-		})],
-		['close', createElement('button', {
-			textContent: 'Close',
-			'dataset.i18n': 'popup.button.close',
-			onclick: e => {
-				e.target.offsetParent.hide();
-			},
-		})],
-	]), 'popup-lose'));
-})();
-(async function () {
-	/*
 	i18n
 	*/
-	const langs = navigator.languages;
-	const langgen = async function* (l) {
-		let i = 0;
-		while (i < l) {
-			yield fetch('i18n/' + langs[i++] + '.json').then(res => res.json(), console.error);
+	(async function () {
+		const langs = navigator.languages;
+		const langgen = async function* (l) {
+			let i = 0;
+			while (i < l) {
+				yield fetch('i18n/' + langs[i++] + '.json').then(res => res.json(), console.error);
+			}
+		};
+		for await (const json of langgen(langs.length)) {
+			if (json) {
+				window.i18n = json;
+				const elems = document.querySelectorAll('[data-i18n]');
+				elems.forEach(elem => {
+					const keys = elem.dataset.i18n.split('.');
+					let i = 0;
+					let parent = json, value;
+					while (i < keys.length) {
+						value = parent[keys[i++]];
+						parent = value;
+					}
+					elem.textContent = value;
+				});
+				document.documentElement.lang = json.this;
+				break;
+			}
 		}
-	};
-	for await (const json of langgen(langs.length)) {
-		if (json) {
-			const elems = document.querySelectorAll('[data-i18n]');
-			elems.forEach(elem => {
-				const keys = elem.dataset.i18n.split('.');
-				let i = 0;
-				let parent = json, value;
-				while (i < keys.length) {
-					value = parent[keys[i++]];
-					parent = value;
-				}
-				elem.textContent = value;
-			});
-			document.documentElement.lang = json.this;
-			break;
-		}
-	}
+	})().then(() => {
+		displayScore();
+
+		/*
+		POP-UP
+		*/
+		document.body.append(new PopUp(new Map([
+			['head', createElement('strong', {
+				textContent: i18n ? i18n.popup.win : 'You Win!',
+			})],
+			['button', createElement('button', {
+				textContent: i18n ? i18n.popup.button.keep : 'Keep score',
+				onclick: e => {
+					keepScore();
+					displayScore();
+					e.target.offsetParent.hide();
+				},
+			})],
+			['close', createElement('button', {
+				textContent: i18n ? i18n.popup.button.close : 'Close',
+				onclick: e => {
+					e.target.offsetParent.hide();
+				},
+			})],
+		]), 'popup-win'), new PopUp(new Map([
+			['head', createElement('strong', {
+				textContent: i18n ? i18n.popup.lose : 'You lose!',
+			})],
+			['button', createElement('button', {
+				textContent: i18n ? i18n.popup.button.retry : 'Retry',
+				onclick: e => {
+					e.target.offsetParent.hide();
+					document.forms.form.button.click();
+				},
+			})],
+			['close', createElement('button', {
+				textContent: i18n ? i18n.popup.button.close : 'Close',
+				onclick: e => {
+					e.target.offsetParent.hide();
+				},
+			})],
+		]), 'popup-lose'));
+	});
 })();

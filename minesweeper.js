@@ -133,11 +133,11 @@ export class CellElement extends HTMLElement {
 		}
 		this.neighbor = _neighbor.map(v => v + i).filter(v => 0 <= v && v < x * y);
 		this.addEventListener('click', e => {
-			e.target.open();
+			this.open();
 		});
 		this.addEventListener('auxclick', e => {
 			e.preventDefault();
-			if (this.isOpened) e.target.openAround();
+			if (this.isOpened) this.openAround();
 		});
 		this.addEventListener('contextmenu', e => {
 			e.preventDefault();
@@ -147,25 +147,34 @@ export class CellElement extends HTMLElement {
 		const dbltap = { count: 0, timer: 0 };
 		const longtap = { timer: 0 };
 		this.addEventListener('touchstart', e => {
+			e.preventDefault();
 			if (dbltap.count) {
 				dbltap.count = 0;
 				clearTimeout(dbltap.timer);
 				clearTimeout(longtap.timer);
-				e.target.openAround();
+				if (this.isOpened) this.openAround();
 			} else {
 				dbltap.count = 1;
 				dbltap.timer = setTimeout(() => {
 					dbltap.count = 0;
 				}, 200);
 				longtap.timer = setTimeout(() => {
-					longtap.timer = 0;
-					e.target.flag();
+					longtap.timer = Infinity;
+					if (!this.isOpened) this.flag();
 				}, 200);
 			}
 		});
-		this.addEventListener('touchend', e => {
+		this.addEventListener('touchmove', e => {
 			clearTimeout(longtap.timer);
+			longtap.timer = Infinity;
 		});
+		this.addEventListener('touchend', e => {
+			if (longtap.timer == Infinity) {
+				clearTimeout(longtap.timer);
+			} else {
+				this.click();
+			}
+		}, { passive: true });
 	}
 	get isFlagged() {
 		return this.classList.contains('flagged');
