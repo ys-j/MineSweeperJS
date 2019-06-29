@@ -3,17 +3,14 @@ import { ContainerElement, CellElement, TimerElement, Record } from './minesweep
 class PopUp extends HTMLElement {
 	/**
 	 * Create pop-up element.
-	 * @param {Map<string, HTMLElement>} elements map of children
+	 * @param {Map<string, HTMLElement>} children map of children
 	 */
-	constructor(elements) {
+	constructor(children, id) {
 		super();
-		this.elements = elements;
-		const root = this.attachShadow({ mode: 'open' });
-		const style = document.createElement('style');
-		const div = document.createElement('div');
-		div.append(...this.elements.values());
-		root.append(style, div);
-		this.css = `:host{background:rgba(255,255,255,.4);display:none;height:100%;left:0;position:fixed;text-align:center;top:0;width:100%}:host([open]){display:flex}div{background:#fff;border:1px solid #acf;border-radius:4px;margin:6em auto auto;padding:8px}div>*{display:block;margin:0 auto}`;
+		this.id = id;
+		const container = document.createElement('div');
+		container.append(...children.values());
+		this.append(container);
 	}
 	hide() {
 		this.removeAttribute('open');
@@ -34,11 +31,29 @@ customElements.define('mine-cell', CellElement);
 customElements.define('mine-timer', TimerElement);
 customElements.define('pop-up', PopUp);
 
+/**
+ * Create new element with options.
+ * @param {string} tag tag name
+ * @param {object} options tag property
+ */
+function createElement(tag, options = {}) {
+	const element = document.createElement(tag);
+	for (let [key, value] of Object.entries(options)) {
+		if (key.includes('.')) {
+			const k = key.split('.', 2);
+			element[k[0]][k[1]] = value;
+		} else {
+			element[key] = value;
+		}
+	}
+	return element;
+}
+
 (function () {
 	const form = document.forms.form;
 	
 	form.addEventListener('submit', createField);
-	form.addEventListener('change', selectMode, { passive: true });
+	form.addEventListener('change', selectGrade, { passive: true });
 	form.x.addEventListener('change', limitN, { passive: true });
 	form.y.addEventListener('change', limitN, { passive: true });
 	
@@ -53,16 +68,16 @@ customElements.define('pop-up', PopUp);
 		wrapper.replaceChild(container, wrapper.lastElementChild);
 	}
 	
-	function selectMode(e) {
+	function selectGrade(e) {
 		const values = e ? e.target.value.match(/(\d+)x(\d+),(\d+)/) : null;
 		if (values) {
 			values.forEach((v, i) => form[i].value = v);
 			limitN();
 			createField();
 		} else {
-			const valueList = Array.from(form.mode.options, option => option.value);
+			const valueList = Array.from(form.grade.options, option => option.value);
 			const custom = form.x.value + 'x' + form.y.value + ',' + form.n.value;
-			form.mode.value = valueList.includes(custom) ? custom : '';
+			form.grade.value = valueList.includes(custom) ? custom : '';
 		}
 	}
 	function limitN() {
@@ -83,17 +98,17 @@ customElements.define('pop-up', PopUp);
 		const records = JSON.parse(score);
 		const table = document.createElement('table');
 		if (!table.tHead) {
-			table.innerHTML = `<caption>スコア<a role=button href="javascript:localStorage.removeItem('score')">リセット</a><thead><th><th>タイム (s)<th>日付<tbody><tbody><tbody>`;
+			table.innerHTML = `<caption><span data-i18n=score.title>Scores</span><a role=button href="javascript:localStorage.removeItem('score')" data-i18n=score.reset>Reset</a><thead><th><th data-i18n=score.time>Time (s)<th data-i18n=score.date>Date<tbody><tbody><tbody>`;
 		}
-		['easy', 'normal', 'hard'].forEach((type, i) => {
+		['easy', 'normal', 'hard'].forEach((grade, i) => {
 			const tbody = table.tBodies[i];
-			tbody.innerHTML = '<tr><th><th colspan=2>' + form.mode.namedItem(type).textContent;
+			tbody.innerHTML = `<tr><th><th class=capitalize colspan=2 data-i18n=grade.${grade}>${grade}`;
 			const a = document.createElement('a');
 			a.className = 'icon-delete';
 			a.setAttribute('href', '#');
 			a.setAttribute('role', 'button');
-			a.setAttribute('title', '削除');
-			tbody.append(...records[type].sort((a, b) => a.time - b.time).map(record => {
+			a.setAttribute('title', 'Delete');
+			tbody.append(...records[grade].sort((a, b) => a.time - b.time).map(record => {
 				const tr = document.createElement('tr');
 				const children = [
 					document.createElement('td'),
@@ -120,13 +135,13 @@ customElements.define('pop-up', PopUp);
 	}
 	displayScore();
 
-	function registerScore() {
+	function keepScore() {
 		const wrapper = document.getElementById('wrapper');
 		const container = wrapper.lastElementChild;
 		if (container) {
-			const mode = form.mode.selectedOptions[0].getAttribute('name');
+			const grade = form.grade.selectedOptions[0].getAttribute('name');
 			const score = JSON.parse(localStorage.getItem('score') || '{"easy":[],"normal":[],"hard":[]}');
-			score[mode].push(new Record(container.timer));
+			score[grade].push(new Record(container.timer));
 			localStorage.setItem('score', JSON.stringify(score));
 		}
 	}
@@ -134,30 +149,75 @@ customElements.define('pop-up', PopUp);
 	/*
 	POP-UP
 	*/
-	const strong = document.createElement('strong');
-	const btn_func = document.createElement('button');
-	btn_func.id = 'button';
-	const btn_close = document.createElement('button');
-	btn_close.textContent = '閉じる';
-	const popup = new PopUp(new Map([
-		['head', strong],
-		['button', btn_func],
-		['close', btn_close],
-	]));
-	popup.css = `.clear>strong::before{content:"クリア"}.clear>#button::before{content:"スコア記録"}.over>strong::before{content:"ゲームオーバー"}.over>#button::before{content:"リトライ"}`;
-	btn_func.onclick = () => {
-		const className = popup.shadowRoot.lastElementChild.className;
-		if (className === 'clear') {
-			registerScore();
-			displayScore();
-			popup.hide();
-		} else if (className === 'over') {
-			popup.hide();
-			document.forms.form.button.click();
+	document.body.append(new PopUp(new Map([
+		['head', createElement('strong', {
+			textContent: 'You Win!',
+			'dataset.i18n': 'popup.win',
+		})],
+		['button', createElement('button', {
+			textContent: 'Keep score',
+			'dataset.i18n': 'popup.button.keep',
+			onclick: e => {
+				keepScore();
+				displayScore();
+				e.target.offsetParent.hide();
+			},
+		})],
+		['close', createElement('button', {
+			textContent: 'Close',
+			'dataset.i18n': 'popup.button.close',
+			onclick: e => {
+				e.target.offsetParent.hide();
+			},
+		})],
+	]), 'popup-win'), new PopUp(new Map([
+		['head', createElement('strong', {
+			textContent: 'You lose!',
+			'dataset.i18n': 'popup.lose',
+		})],
+		['button', createElement('button', {
+			textContent: 'Retry',
+			'dataset.i18n': 'popup.button.retry',
+			onclick: e => {
+				e.target.offsetParent.hide();
+				document.forms.form.button.click();
+			},
+		})],
+		['close', createElement('button', {
+			textContent: 'Close',
+			'dataset.i18n': 'popup.button.close',
+			onclick: e => {
+				e.target.offsetParent.hide();
+			},
+		})],
+	]), 'popup-lose'));
+})();
+(async function () {
+	/*
+	i18n
+	*/
+	const langs = navigator.languages;
+	const langgen = async function* (l) {
+		let i = 0;
+		while (i < l) {
+			yield fetch('i18n/' + langs[i++] + '.json').then(res => res.json(), console.error);
 		}
 	};
-	btn_close.onclick = () => {
-		popup.hide();
-	};
-	document.body.appendChild(popup);
+	for await (const json of langgen(langs.length)) {
+		if (json) {
+			const elems = document.querySelectorAll('[data-i18n]');
+			elems.forEach(elem => {
+				const keys = elem.dataset.i18n.split('.');
+				let i = 0;
+				let parent = json, value;
+				while (i < keys.length) {
+					value = parent[keys[i++]];
+					parent = value;
+				}
+				elem.textContent = value;
+			});
+			document.documentElement.lang = json.this;
+			break;
+		}
+	}
 })();

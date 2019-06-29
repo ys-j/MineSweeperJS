@@ -1,0 +1,107 @@
+pop-up {
+	background: rgba(255,255,255,.4);
+	display: none;
+	height: 100%;
+	left: 0;
+	position: fixed;
+	text-align: center;
+	top: 0;
+	width: 100%;
+}
+pop-up[open] {
+	display: flex;
+}
+pop-up > div {
+	background: #fff;
+	border: 1px solid #acf;
+	border-radius: 4px;
+	margin: 6em auto auto;
+	padding: 8px;
+}
+pop-up > div > * {
+	display: block;
+	margin: 0 auto;
+}
+
+a {
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+a[class|="icon"]:hover {
+	text-decoration: none;
+}
+a.icon-delete::after {
+	content: '\274c';
+}
+.capitalize {
+	text-transform: capitalize;
+}
+.nowrap {
+	white-space: nowrap;
+}
+form {
+	display: grid;
+	grid-gap: 2px 8px;
+	grid-template: auto / min-content min-content minmax(min-content, 1fr) minmax(min-content, 1fr);
+	margin: 8px 0;
+}
+form > label:first-of-type {
+	grid-column: 1;
+	grid-row: 1 / 3;
+	margin: auto 0;
+}
+[class*="flex"] {
+	display: flex;
+	flex-wrap: nowrap;
+}
+@media (orientation: landscape) {
+	.flex-row-aspect-reverse {
+		flex-direction: row;
+	}
+}
+@media (orientation: portrait) {
+	.flex-row-aspect-reverse {
+		flex-direction: row-reverse;
+	}
+}
+form > hr {
+	border: 0;
+	grid-column: 3;
+	grid-row: 1 / 3;
+}
+form > button:last-of-type {
+	grid-column: 4;
+	grid-row: 1 / 3;
+}
+input[type="number"] {
+	text-align: right;
+	width: 4em;
+}
+main {
+	align-items: safe center;
+	display: flex;
+	flex-flow: column nowrap;
+	margin: 0 auto;
+	overflow: auto hidden;
+	text-align: center;
+}
+table {
+	border-collapse: collapse;
+}
+caption > [role="button"] {
+	font-size: smaller;
+	padding: 0 .5em;
+	quotes: '[' ']';
+}
+caption > [role="button"]::before {
+	content: open-quote;
+}
+caption > [role="button"]::after {
+	content: close-quote;
+}
+th, td {
+	border: 1px solid #888;
+	padding: 4px 8px;
+}

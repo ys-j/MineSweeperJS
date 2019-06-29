@@ -1,0 +1,30 @@
+{
+	"this": "ja",
+	"grade": {
+		"title": "難易度",
+		"custom": "カスタム",
+		"easy": "初級",
+		"normal": "中級",
+		"hard": "上級"
+	},
+	"config": {
+		"width": "横",
+		"height": "縦",
+		"numofmines": "地雷の数"
+	},
+	"score": {
+		"title": "スコア",
+		"reset": "リセット",
+		"time": "タイム (s)",
+		"date": "日付"
+	},
+	"popup": {
+		"win": "クリア",
+		"lose": "ゲームオーバー",
+		"button": {
+			"close": "閉じる",
+			"keep": "スコアを記録する",
+			"retry": "リトライ"
+		}
+	}
+}

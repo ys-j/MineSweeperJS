@@ -145,17 +145,26 @@ export class CellElement extends HTMLElement {
 		});
 
 		const dbltap = { count: 0, timer: 0 };
+		const longtap = { timer: 0 };
 		this.addEventListener('touchstart', e => {
 			if (dbltap.count) {
 				dbltap.count = 0;
 				clearTimeout(dbltap.timer);
+				clearTimeout(longtap.timer);
 				e.target.openAround();
 			} else {
 				dbltap.count = 1;
 				dbltap.timer = setTimeout(() => {
 					dbltap.count = 0;
 				}, 200);
+				longtap.timer = setTimeout(() => {
+					longtap.timer = 0;
+					e.target.flag();
+				}, 200);
 			}
+		});
+		this.addEventListener('touchend', e => {
+			clearTimeout(longtap.timer);
 		});
 	}
 	get isFlagged() {
@@ -191,9 +200,7 @@ export class CellElement extends HTMLElement {
 			} else {
 				this.parentNode.host.over(() => {
 					navigator.vibrate(1000);
-					const popup = document.getElementsByTagName('pop-up')[0];
-					popup.shadowRoot.lastElementChild.className = 'over';
-					popup.show();
+					document.getElementById('popup-lose').show();
 				});
 			}
 		}
@@ -225,9 +232,7 @@ export class CellElement extends HTMLElement {
 		const container = this.parentNode.host;
 		if (container.closingNumber === container.mines) {
 			getPrivates(container).complete(() => {
-				const popup = document.getElementsByTagName('pop-up')[0];
-				popup.shadowRoot.lastElementChild.className = 'clear';
-				popup.show();
+				document.getElementById('popup-win').show();
 			});
 		}
 	}

@@ -3,7 +3,7 @@
 	text-align: center;
 }
 :host::before {
-	content: "残り" attr(flags);
+	content: attr(flags);
 	grid-column: 1 / 4;
 	left: 0;
 	padding-left: .8em;
