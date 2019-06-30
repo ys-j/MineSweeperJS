@@ -34,11 +34,7 @@ export class ContainerElement extends HTMLElement {
 		this.cells = Array.from(self.mines, (_, i) => new CellElement(i, x, y));
 		root.append(style, this.timer, ...this.cells);
 
-		this.addEventListener('click', e => {
-			const path = e.composedPath();
-			this.putMines([ path[0].index, ...path[0].adjacencies ]);
-			getPrivates(e.target.timer).start();
-		}, { capture: true, once: true, passive: true });
+		this.initialized = false;
 
 		self.complete = callback => {
 			getPrivates(this.timer).stop(true);
@@ -80,6 +76,15 @@ export class ContainerElement extends HTMLElement {
 		const number = this.mines - this.cells.filter(cell => cell.isFlagged).length;
 		this.flags = number;
 		return number;
+	}
+	/**
+	 * Initialize a field.
+	 * @param {CellElement} cell cell opening first
+	 */
+	initialize(cell) {
+		this.initialized = true;
+		this.putMines([ cell.index, ...cell.adjacencies ]);
+		getPrivates(this.timer).start();
 	}
 	/**
 	 * Terminates game due to player's failure.
@@ -132,27 +137,33 @@ export class CellElement extends HTMLElement {
 			default: _adjacencies = [-x-1, -x, -x+1, -1, +1, +x-1, +x, +x+1];
 		}
 		this.adjacencies = _adjacencies.map(v => v + i).filter(v => 0 <= v && v < x * y);
-		this.addEventListener('click', e => {
-			this.open();
-		});
-		this.addEventListener('auxclick', e => {
+		
+		this.addEventListener('mousedown', e => {
 			e.preventDefault();
-			if (this.isOpened) this.openAround();
+			if (e.button === 0) {
+				const container = this.parentNode.host;
+				if (!container.initialized) {
+					container.initialize(this);
+				}
+				this.open();
+			} else if (e.button === 1 && this.isOpened) {
+				this.openAdjacencies();
+			} else if (e.button === 2 && !this.isOpened) {
+				this.flag();
+			}
 		});
-		this.addEventListener('contextmenu', e => {
-			e.preventDefault();
-			if (!this.isOpened) this.flag();
-		});
+		this.oncontextmenu = () => false;
 
 		const dbltap = { count: 0, timer: 0 };
 		const longtap = { timer: 0 };
+		const mousedowns = [0, 1, 2].map(b => new MouseEvent('mousedown', { button: b }));
 		this.addEventListener('touchstart', e => {
 			e.preventDefault();
 			if (dbltap.count) {
 				dbltap.count = 0;
 				clearTimeout(dbltap.timer);
 				clearTimeout(longtap.timer);
-				if (this.isOpened) this.openAround();
+				this.dispatchEvent(mousedowns[1]);
 			} else {
 				dbltap.count = 1;
 				dbltap.timer = setTimeout(() => {
@@ -160,7 +171,7 @@ export class CellElement extends HTMLElement {
 				}, 200);
 				longtap.timer = setTimeout(() => {
 					longtap.timer = Infinity;
-					if (!this.isOpened) this.flag();
+					this.dispatchEvent(mousedowns[2]);
 				}, 200);
 			}
 		});
@@ -172,7 +183,7 @@ export class CellElement extends HTMLElement {
 			if (longtap.timer == Infinity) {
 				clearTimeout(longtap.timer);
 			} else {
-				this.click();
+				this.dispatchEvent(mousedowns[0]);
 			}
 		}, { passive: true });
 	}
@@ -204,7 +215,7 @@ export class CellElement extends HTMLElement {
 			if (continuing) {
 				this.setAttribute('open', mine || '');
 				if (mine === 0) {
-					this.openAround();
+					this.openAdjacencies();
 				}
 			} else {
 				this.parentNode.host.over(() => {
@@ -216,9 +227,9 @@ export class CellElement extends HTMLElement {
 		return continuing;
 	}
 	/**
-	 * Open cells around.
+	 * Open adjacent cells.
 	 */
-	openAround() {
+	openAdjacencies() {
 		let flags = 0;
 		const targets = [];
 		const cells = this.parentNode.host.cells;

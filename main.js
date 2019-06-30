@@ -5,18 +5,22 @@ class PopUp extends HTMLElement {
 	 * Create pop-up element.
 	 * @param {Map<string, HTMLElement>} children map of children
 	 */
-	constructor(children, id) {
+	constructor(children, options = {}) {
 		super();
-		this.id = id;
+		this.id = options.id;
+		this.onhide = options.onhide;
+		this.onshow = options.onshow;
 		const container = document.createElement('div');
 		container.append(...children.values());
 		this.append(container);
 	}
 	hide() {
 		this.removeAttribute('open');
+		if (this.onhide) this.onhide(this);
 	}
 	show() {
 		this.setAttribute('open', '');
+		if (this.onshow) this.onshow(this);
 	}
 	get css() {
 		return this.shadowRoot.firstElementChild.textContent;
@@ -140,7 +144,7 @@ window.i18n = null;
 		const wrapper = document.getElementById('wrapper');
 		const container = wrapper.lastElementChild;
 		if (container) {
-			const grade = form.grade.selectedOptions[0].getAttribute('name');
+			const grade = form.grade.selectedOptions[0].id.split('-')[1];
 			const score = JSON.parse(localStorage.getItem('score') || '{"easy":[],"normal":[],"hard":[]}');
 			score[grade].push(new Record(container.timer));
 			localStorage.setItem('score', JSON.stringify(score));
@@ -155,7 +159,7 @@ window.i18n = null;
 		const langgen = async function* (l) {
 			let i = 0;
 			while (i < l) {
-				yield fetch('i18n/' + langs[i++] + '.json').then(res => res.json(), console.error);
+				yield fetch('i18n/' + langs[i++] + '.json').then(res => res.ok ? res.json() : null, console.error);
 			}
 		};
 		for await (const json of langgen(langs.length)) {
@@ -167,10 +171,14 @@ window.i18n = null;
 					let i = 0;
 					let parent = json, value;
 					while (i < keys.length) {
-						value = parent[keys[i++]];
-						parent = value;
+						try {
+							value = parent[keys[i++]];
+							parent = value;
+						} catch {
+							break;
+						}
 					}
-					elem.textContent = value;
+					if (value) elem.textContent = value;
 				});
 				document.documentElement.lang = json.this;
 				break;
@@ -200,7 +208,13 @@ window.i18n = null;
 					e.target.offsetParent.hide();
 				},
 			})],
-		]), 'popup-win'), new PopUp(new Map([
+		]), {
+			id: 'popup-win',
+			onshow: popup => {
+				const button = popup.firstElementChild.children[1];
+				button.disabled = !form.grade.selectedOptions[0].id;
+			},
+		}), new PopUp(new Map([
 			['head', createElement('strong', {
 				textContent: i18n ? i18n.popup.lose : 'You lose!',
 			})],
@@ -217,6 +231,8 @@ window.i18n = null;
 					e.target.offsetParent.hide();
 				},
 			})],
-		]), 'popup-lose'));
+		]), {
+			id: 'popup-lose',
+		}));
 	});
 })();

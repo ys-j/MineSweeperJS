@@ -1,53 +1,51 @@
 <!DOCTYPE html>
-<html lang=en>
-	<meta charset=utf-8>
-	<title>MineSweeperJS</title>
-	<meta name=viewport content="width=device-width,initial-scale=1">
-	<link rel=stylesheet href=main.css>
-	<h1 hidden>MineSweeperJS</h1>
-	<form name=form>
+<meta charset=utf-8>
+<title>MineSweeperJS</title>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<link rel=stylesheet href=main.css>
+<h1 hidden>MineSweeperJS</h1>
+<form name=form>
+	<label>
+		<span data-i18n=grade.title></span>
+		<select name=grade>
+			<option value disabled data-i18n=grade.custom>&nbsp;
+			<option id=grade-easy value=9x9,10 selected data-i18n=grade.easy>&nbsp;
+			<option id=grade-normal value=16x16,40 data-i18n=grade.normal>&nbsp;
+			<option id=grade-hard value=30x16,99 data-i18n=grade.hard>&nbsp;
+		</select>
+	</label>
+	<div class="nowrap flex-row-aspect-reverse">
 		<label>
-			<span data-i18n=grade.title>Grade</span>
-			<select name=grade>
-				<option value disabled data-i18n=grade.custom>Custom</option>
-				<option name=easy value=9x9,10 selected data-i18n=grade.easy>Easy</option>
-				<option name=normal value=16x16,40 data-i18n=grade.normal>Normal</option>
-				<option name=hard value=30x16,99 data-i18n=grade.hard>Hard</option>
-			</select>
+			<span data-i18n=config.width></span>
+			<input type=number name=x min=9 value=9 required>
 		</label>
-		<div class="nowrap flex-row-aspect-reverse">
-			<label>
-				<span data-i18n=config.width>Columns</span>
-				<input type=number name=x min=9 value=9 required>
-			</label>
-			<span>×</span>
-			<label>
-				<span data-i18n=config.height>Rows</span>
-				<input type=number name=y min=9 value=9 required>
-			</label>
-		</div>
-		<label class=nowrap>
-			<span data-i18n=config.numofmines>Number of mines</span>
-			<input type=number name=n min=10 value=10 required>
+		<span>×</span>
+		<label>
+			<span data-i18n=config.height></span>
+			<input type=number name=y min=9 value=9 required>
 		</label>
-		<hr>
-		<button name=button>NEW GAME</button>
-	</form>
-	<main id=wrapper>
-		<table id=score></table>
-	</main>
-	<aside id=tips>
-		<table class=nowrap>
-			<caption><span data-i18n=tips.title>Tips</span> <a id=btn-tips role=button href="javascript:document.body.classList.toggle('show-tips');void(0)"></a>
-			<tbody class=tips>
-				<tr><th data-i18n=tips.click.action>Click / Tap<td data-i18n=tips.click.function>Open a square.
-				<tr><th data-i18n=tips.rightclick.action>Right-click / Long-tap<td data-i18n=tips.rightclick.function>Flag on a square.
-				<tr><th data-i18n=tips.auxclick.action>Aux-click / Double-tap<td data-i18n=tips.auxclick.function>Open adjacent squares.
-		</table>
-		<ul class=tips>
-			<li data-i18n=tips.scroll.up/down>To scroll up/down the field, swipe up/down outside it.
-			<li data-i18n=tips.scroll.left/right>To scroll left/right the field, swipe left/right above it.
-		</ul>
-	</aside>
-	<script type=module src=main.js></script>
-</html>
+	</div>
+	<label class=nowrap>
+		<span data-i18n=config.numofmines></span>
+		<input type=number name=n min=10 value=10 required>
+	</label>
+	<hr>
+	<button name=button>NEW GAME</button>
+</form>
+<main id=wrapper>
+	<table id=score></table>
+</main>
+<aside id=tips>
+	<table class=nowrap>
+		<caption><span data-i18n=tips.title></span> <a id=btn-tips role=button href="javascript:document.body.classList.toggle('show-tips');void(0)"></a>
+		<tbody class=tips>
+			<tr><th data-i18n=tips.click.action><td data-i18n=tips.click.function>
+			<tr><th data-i18n=tips.rightclick.action><td data-i18n=tips.rightclick.function>
+			<tr><th data-i18n=tips.auxclick.action><td data-i18n=tips.auxclick.function>
+	</table>
+	<ul class=tips>
+		<li data-i18n=tips.scroll.up/down>
+		<li data-i18n=tips.scroll.left/right>
+	</ul>
+</aside>
+<script type=module src=main.js></script>

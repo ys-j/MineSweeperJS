@@ -1,0 +1,49 @@
+{
+	"this": "en",
+	"grade": {
+		"title": "Grade",
+		"custom": "Custom",
+		"easy": "Easy",
+		"normal": "Normal",
+		"hard": "Hard"
+	},
+	"config": {
+		"width": "Columns",
+		"height": "Rows",
+		"numofmines": "Number of mines"
+	},
+	"score": {
+		"title": "Score",
+		"reset": "Reset",
+		"time": "Time (s)",
+		"date": "Date"
+	},
+	"popup": {
+		"win": "You win!",
+		"lose": "You lose!",
+		"button": {
+			"close": "Close",
+			"keep": "Keep score",
+			"retry": "Retry"
+		}
+	},
+	"tips": {
+		"title": "Tips",
+		"click": {
+			"action": "Click / Tap",
+			"function": "Open a square."
+		},
+		"rightclick": {
+			"action": "Right-click / Long-tap",
+			"function": "Flag on a square."
+		},
+		"auxclick": {
+			"action": "Aux-click / Double-tap",
+			"function": "Open adjacent squares."
+		},
+		"scroll": {
+			"up/down": "To scroll up/down the field, swipe up/down outside it.",
+			"left/right": "To scroll left/right the field, swipe left/right above it."
+		}
+	}
+}
