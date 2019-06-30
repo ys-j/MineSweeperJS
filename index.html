@@ -37,15 +37,16 @@
 		<table id=score></table>
 	</main>
 	<aside id=tips>
-		<table>
-			<caption>Tips</caption>
-			<tr><th>Click / Tap<td>Open a cell.
-			<tr><th>Right-click / Long-tap<td>Flag on a cell.
-			<tr><th>Aux-click / Double-tap<td>Open around cells.
+		<table class=nowrap>
+			<caption><span data-i18n=tips.title>Tips</span> <a id=btn-tips role=button href="javascript:document.body.classList.toggle('show-tips');void(0)"></a>
+			<tbody class=tips>
+				<tr><th data-i18n=tips.click.action>Click / Tap<td data-i18n=tips.click.function>Open a square.
+				<tr><th data-i18n=tips.rightclick.action>Right-click / Long-tap<td data-i18n=tips.rightclick.function>Flag on a square.
+				<tr><th data-i18n=tips.auxclick.action>Aux-click / Double-tap<td data-i18n=tips.auxclick.function>Open adjacent squares.
 		</table>
-		<ul>
-			<li>To scroll up/down the field, swipe up/down outside it.
-			<li>To scroll left/right the field, swipe left/right above it.
+		<ul class=tips>
+			<li data-i18n=tips.scroll.up/down>To scroll up/down the field, swipe up/down outside it.
+			<li data-i18n=tips.scroll.left/right>To scroll left/right the field, swipe left/right above it.
 		</ul>
 	</aside>
 	<script type=module src=main.js></script>

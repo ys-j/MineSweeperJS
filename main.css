@@ -111,8 +111,27 @@ th, td {
 aside {
 	display: flex;
 	flex-flow: column nowrap;
+	font-size: .8em;
 	margin: 8px;
 }
 aside > * {
 	margin: 8px auto;
+}
+#btn-tips::before {
+	content: open-quote "show";
+}
+#btn-tips:lang(ja)::before {
+	content: open-quote "表示";
+}
+body.show-tips #btn-tips::before {
+	content: open-quote "hide";
+}
+body.show-tips #btn-tips:lang(ja)::before {
+	content: open-quote "非表示";
+}
+body .tips {
+	visibility: collapse;
+}
+body.show-tips .tips {
+	visibility: visible;
 }

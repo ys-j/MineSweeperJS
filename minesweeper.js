@@ -36,7 +36,7 @@ export class ContainerElement extends HTMLElement {
 
 		this.addEventListener('click', e => {
 			const path = e.composedPath();
-			this.putMines([ path[0].index, ...path[0].neighbor ]);
+			this.putMines([ path[0].index, ...path[0].adjacencies ]);
 			getPrivates(e.target.timer).start();
 		}, { capture: true, once: true, passive: true });
 
@@ -110,7 +110,7 @@ export class ContainerElement extends HTMLElement {
 			}
 		}
 		this.cells.forEach((cell, i) => {
-			getPrivates(cell).mine = mines[i] ? 9 : cell.neighbor.reduce((p, c) => p + (mines[c]|0), 0);
+			getPrivates(cell).mine = mines[i] ? 9 : cell.adjacencies.reduce((p, c) => p + (mines[c]|0), 0);
 		});
 	}
 }
@@ -125,13 +125,13 @@ export class CellElement extends HTMLElement {
 	constructor(i, x, y) {
 		super();
 		this.index = i;
-		let _neighbor = [];
+		let _adjacencies = [];
 		switch (i % x) {
-			case 0: _neighbor = [-x, -x+1, +1, +x, +x+1]; break;
-			case (x-1): _neighbor = [-x-1, -x, -1, +x-1, +x]; break;
-			default: _neighbor = [-x-1, -x, -x+1, -1, +1, +x-1, +x, +x+1];
+			case 0: _adjacencies = [-x, -x+1, +1, +x, +x+1]; break;
+			case (x-1): _adjacencies = [-x-1, -x, -1, +x-1, +x]; break;
+			default: _adjacencies = [-x-1, -x, -x+1, -1, +1, +x-1, +x, +x+1];
 		}
-		this.neighbor = _neighbor.map(v => v + i).filter(v => 0 <= v && v < x * y);
+		this.adjacencies = _adjacencies.map(v => v + i).filter(v => 0 <= v && v < x * y);
 		this.addEventListener('click', e => {
 			this.open();
 		});
@@ -222,7 +222,7 @@ export class CellElement extends HTMLElement {
 		let flags = 0;
 		const targets = [];
 		const cells = this.parentNode.host.cells;
-		this.neighbor.forEach(i => {
+		this.adjacencies.forEach(i => {
 			const target = cells[i];
 			if (target) {
 				targets.push(target);
